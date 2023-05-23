@@ -9,4 +9,4 @@
   </ul>
   
 <p>Pour l'installation if faut éffectuer la commande suivante: </p><br>
-pip install <nom_du_package>
+<p>pip install <nom_du_package></p>

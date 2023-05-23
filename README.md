@@ -8,5 +8,5 @@
  
   </ul>
   
-<p>Pour l'installation if faut éffectuer la commande suivante: </p><br>
-<p>pip install <nom_du_package></p>
+<p>Pour l'installation if faut éffectuer la commande suivante: </p>
+<p>pip install "nom_du_package" </p>

@@ -1,4 +1,4 @@
-import os
+import os,re,string,random
 from models import User 
 from PIL import Image 
 from pyzbar.pyzbar import decode
@@ -13,6 +13,18 @@ engine = create_engine('sqlite:///mydatabase.db', echo=True)
 Session = sessionmaker(bind=engine)
 session = Session() 
 
+
+#Générateur de chaine de 32 caractère
+"""
+    Cette fonction permet de générer un texte de 32 caractère 
+    Paramètre: pas de paramètre 
+    return :String (Texte de 32 caractère)
+"""
+def generate_random_string(length=32):
+    letters = string.ascii_letters + string.digits
+    return ''.join(random.choice(letters) for _ in range(length))
+
+
 #Generateur de code qr
 """ 
 Cette fonction est chargée de générer du code QR 
@@ -25,8 +37,21 @@ return:
     content:String(le contenu du code qr)
     
 """
-def generated_qr_code(content,security_code):
+def generated_qr_code(security_code):
     
+    #Récuperation de la liste des utilisateurs
+    users=session.query(User).all()
+    
+    #Vérification si le contenur du ocde_qr existe déjà
+    content_is_exist=True
+    while content_is_exist:
+        content=generate_random_string()
+        for user in users: 
+            if user.qr_code == content:
+                content_is_exist=True 
+                break
+            else:
+                content_is_exist=False         
     #Creation du code QR à partir de la donnée spécifier  
     qr = qrcode.QRCode(version=1,error_correction=qrcode.constants.ERROR_CORRECT_L,box_size=10,border=4)
     qr.add_data(content)
@@ -143,6 +168,7 @@ def save_user(data):
 def get_user(by, value):
     
     try:
+        
         if by == 'qr': 
             #Recupérer tous les utilisateurs existant dans la base de donées
             users=session.query(User).all()
@@ -158,4 +184,13 @@ def get_user(by, value):
             return None
     except Exception as e:
         print(f"Une erreur s'est produite lors de la lecture du code QR : {str(e)}")
-        return None
+        return None 
+    
+
+#Verification si un text est un mail 
+def is_email(text):
+    pattern = r'^[\w\.-]+@[\w\.-]+\.\w+$'
+    if re.match(pattern, text):
+        return True
+    else:
+        return False

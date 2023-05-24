@@ -1,5 +1,6 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
+from utils_fonctions import is_email
 
 from models import User
 from utils_fonctions import generated_qr_code, get_user, read_qr_code, save_user
@@ -14,47 +15,41 @@ session = Session()
 #Get all user from dataBase 
 users=session.query(User).all()
 is_qr_exist=True
-
+isMail=True
 
 #Enregistrer les utilisateurs avec le clavier 
 print("ENREGISTREMENT D'UN UTILISATEUR ") 
 
-#Nom et prenoms 
-print("Nom et prenom : ")
-username=input().split(' ')
+#prenoms 
+print("Nom: ")
+nom=input().split(' ')
+
+#Nom
+print("\nPrénoms: ")
+prenom=input().split(' ')
 
 #email 
-print("\nemail:")
-email=input() 
+while isMail: 
+    print("\nemail:")
+    email=input() 
+    if is_email(email):
+        isMail=False
+    else:
+        isMail=True
 
 #Code de sécurité 
 print("\nCode de Sécurité:")
-code_security=input() 
-
-while is_qr_exist:
-   #Contenu du code QR
-    print("Contenue du code QR:")
-    content = input()
-    if len(users) > 0:
-        for user in users: 
-            print(user.qr_code)
-            if user.qr_code == content:
-                is_qr_exist = True
-            else:
-                is_qr_exist=False
-    else:
-        is_qr_exist=False
-
+code_security=input()
 
     
 #Code QR 
-qr_image,code_qr=generated_qr_code(content,code_security)
+qr_image,code_qr=generated_qr_code(code_security)
 
 # Créez un nouvel utilisateur
 result=save_user(
     data={
-    "lastname":username[0], 
-    "firstname":username[1], 
+    "lastname":nom, 
+    "firstname":prenom, 
     "email":email,
     "code_security":code_security, 
     "qr_code":code_qr, 

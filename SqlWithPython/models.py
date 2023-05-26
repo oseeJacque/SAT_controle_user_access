@@ -18,7 +18,7 @@ class User(Base):
     firstname=Column(String) 
     email=Column(String,unique=True)
     code_security = Column(String)
-    qr_code = Column(String), 
+    qr_code = Column(String)
     qr_image=Column(String,unique=True)
     
     def login(self):

@@ -14,7 +14,8 @@ session = Session()
 
 #Get all user from dataBase 
 users=session.query(User).all()
-is_qr_exist=True
+"""
+#Variable pour vérifier si le text saisir pour le mail est un mail
 isMail=True
 
 #Enregistrer les utilisateurs avec le clavier 
@@ -22,11 +23,11 @@ print("ENREGISTREMENT D'UN UTILISATEUR ")
 
 #prenoms 
 print("Nom: ")
-nom=input().split(' ')
+nom=input()
 
 #Nom
 print("\nPrénoms: ")
-prenom=input().split(' ')
+prenom=input()
 
 #email 
 while isMail: 
@@ -62,7 +63,9 @@ if result:
 else:
     print("Enregistrement de l'utilisateur a echoué")
 
+
+"""
 #Vérification de l'existance des utilisateur 
 for user in users:
-    print (get_user('qr',value=read_qr_code(user.qr_image)))
+    get_user('qr',value=read_qr_code(user.qr_image))
 

@@ -6,75 +6,75 @@ import qrcode
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
-# Créez un moteur de base de données SQLite
+# Create an SQLite database engine
 engine = create_engine('sqlite:///mydatabase.db', echo=True)
 
-# Créez une session pour interagir avec la base de données
+# Create a session to interact with the database
 Session = sessionmaker(bind=engine)
 session = Session() 
 
 
-#Générateur de chaine de 32 caractère
+#32 character string generator
 def generate_random_string(length=32):
-    """
-    Cette fonction permet de générer un texte de 32 caractère 
-    Paramètre: pas de paramètre 
-    return :String (Texte de 32 caractère)
+   
+    """This function generates a text of 32 characters
+
+    Returns:
+        String: 32 character random text
     """
     letters = string.ascii_letters + string.digits
     return ''.join(random.choice(letters) for _ in range(length))
 
 
-#Generateur de code qr
+#Code qr générator
 def generated_qr_code(security_code):
-    """ 
-    Cette fonction est chargée de générer du code QR 
-    paramettre: 
-        content="String" 
-        security_code="String"
-        
-    return:
-        path_of_qr_image:String (chemin du stockage de l'image qr)
-        content:String(le contenu du code qr)
+    """This function is responsible for generating QR code
+
+    Args:
+        security_code (String): Security code of User
+
+    Returns:
+        String: Paths of code qr image
+        String: Code qr content
+
     """
-    #Récuperation de la liste des utilisateurs
+    #User list retrieval
     users=session.query(User).all()
     
-    #Vérification si le contenur du ocde_qr existe déjà
+    #Checking if the content of ocde_qr already exists
     content_is_exist=True
     while content_is_exist:
         content=generate_random_string()
         
         #Vérifier s'il y a plusieurs utilisateur dans la base de donnée
         if len(users) > 0:
-            #Vérification de l'unicité du text généré
+            #Verification of the uniqueness of the generated text
             for user in users: 
                 if user.qr_code == content:
                     content_is_exist=True 
-                    #print("hi")
                     break
                 else:
                     content_is_exist=False 
         else:
               content_is_exist=False 
   
-    #Creation du code QR à partir de la donnée spécifier  
+    #Creation of the QR code from the specified data  
     qr = qrcode.QRCode(version=1,error_correction=qrcode.constants.ERROR_CORRECT_L,box_size=10,border=4)
     qr.add_data(content)
     qr.make(fit=True) 
     
-    #Génération de l'image du code QR 
+    #Generating the QR code image
     image = qr.make_image(fill_color="black",back_color="white") 
     
-    #Chemin de l'enregistrement de l'image 
+    #Image save path
     path_of_qr_image=f"qrcode_{security_code}.png"
     
-    #Chemin complet pour de l'image
+    #Full path for image storage
     BASE_DIR = os.path.dirname(os.path.abspath(__file__))
     code_qr_dir = os.path.join(BASE_DIR, "codes_qr") 
     complete_path = os.path.join(code_qr_dir,f"qrcode_{security_code}.png")
     
-    #Enregistrement de l'image 
+    #Saving image 
     image.save(complete_path) 
     
     
@@ -82,57 +82,59 @@ def generated_qr_code(security_code):
 
 
 
-#Lecteur de Code QR
+#QR Code Reader
 def read_qr_code(image_path):
-    """ 
-    Cette fonction permet de decoder un code QR à partir de son image 
-    paramettre:
-        image_path:String (chemin de l'image) 
+    """This function allows you to decode a QR code from its image
 
-    return: 
-        r_code_content:String (contenu du code QR)
+    Args:
+        image_path (String): Code QR image path
+
+    Returns:
+        String: QR code content from image.If the image is empty we return None
     """
     try:
-        #Chemin complet pour de l'image
+        #Full path for image
         BASE_DIR = os.path.dirname(os.path.abspath(__file__))
         code_qr_dir = os.path.join(BASE_DIR, "codes_qr") 
         complete_path=os.path.join(code_qr_dir,f"{image_path}")
         
-        #Ouverture de l'image QR
+        #Opening the QR image
         image=Image.open(complete_path) 
         
-        #Decoder l'image 
+        #Decoding the image
         qr_codes=decode(image) 
         
         if qr_codes:
-            #recuperation du contenu du code qr
+            #qr code content recovery
             qr_code_content=qr_codes[0].data.decode('utf-8')
             return qr_code_content
         else:
-            print("Aucun code QR trouvé dans l'image")
+            print("No QR code found in image")
             return None 
     except Exception as e:
-        print(f"Une erreur s'est produite lors de la lecture du code QR : {str(e)}")  
+        print(f"An error occurred while reading the QR code: {str(e)}")  
         return None
 
 
-#Définition de la fonction save_user pour l'enregistrement d'un utilisateur 
+#Defining the save_user function for saving a user QR code
 def save_user(data):
-    """
-    Paramètre: 
-    data={
+    """_summary_
+
+    Args:
+        data (Dictionary): data={
         "lastname":String, 
         "firstname":String, 
         "email":String,
         "code_security":String, 
         "qr_code":String, 
         "qr_image":String,
-    } 
-    return :
-    True if user save is succefull and False else
+    }
+
+    Returns:
+        Bool: True if user save is succefull and False else
     """
     try:
-         # Créez un nouvel utilisateur
+         # Create new User
         new_user = User(
             lastname=data["lastname"],
             firstname=data["firstname"],
@@ -142,16 +144,15 @@ def save_user(data):
             qr_image=data["qr_image"]
         )
 
-    # Ajoutez l'utilisateur à la session
+    # Add the new User to session
         print ("yes ")
         session.add(new_user) 
-    # Validez les modifications
+    # Validate the new modification from database
         session.commit()
         
         return True
     except Exception as e:
-         # Gérer l'erreur
-        print(f"Une erreur s'est produite lors de l'ajout de l'utilisateur : {str(e)}") 
+        print(f"An error occurred while adding the user: {str(e)}") 
         return False
     finally:
         
@@ -159,54 +160,54 @@ def save_user(data):
         session.close() 
         
 
-#Rechercher un tuilisateur  
+#Search user in the data base  
 def get_user(by, value,is_user_find=False):
-    """ 
-    Cette methode permet de recupérer les informations d'un utilisateur si ce dernier existe 
-    Paramettre:
-        by:String (Methode de recherhce utilisé)
-        value:String (la clé de recherche)
-        
-    retourne:
-        User:User (L'utilisateur recherhcer)
+    """This method makes it possible to retrieve the information of a user if the latter exists
+
+    Args:
+        by (String): Identification Method
+        value (String): User code QR content
+        is_user_find (bool, optional): True if user is in data base.
+
+    Returns:
+        User: Return User if it's find otherwise return None
     """
     try:  
         if by == 'qr': 
-            #Recupérer tous les utilisateurs existant dans la base de donées
+            #Retrieve all users from Data base
             users=session.query(User).all()
             
-                #Parcouru la listes des utilisateurs pour voir le code qr de celui qui correspond a value 
+                #Browse the list of users to see the qr code of the one that corresponds to value
             for user in users:
                 if user.qr_code == value :
                     is_user_find=True
-                    #Demander le code de sécurité à l'utilisateur
-                    print("Veuillez saisir votre code de sécurité ")
+                    #Ask user for security code
+                    print("Please enter your security code ")
                     code_security=input()
                     if code_security == user.code_security: 
                         print(
-                            f"\n Nom: {user.lastname}\nPrénom: {user.firstname}\n Email: {user.email}\n Code de Sécurité: {user.code_security}\n Contenu du Code QR: {user.qr_code}\n QR Image source: {user.qr_image}"
+                            f"\n Lastname: {user.lastname}\nFirstname: {user.firstname}\n Email: {user.email}\n Security Code: {user.code_security}\n Code QR content: {user.qr_code}\n QR Image source: {user.qr_image}"
                         )
                     else:
-                        print("Le code de sécurité entré est invalide")
+                        print("The security code entered is invalid")
                        # return user
                 #return None
         else:
-            print("Aucun utilisateur trouvé dans la base de donnée")
+            print("No user found in database")
             #return None
     except Exception as e:
-        print(f"Une erreur s'est produite lors de la lecture du code QR : {str(e)}")
+        print(f"An error occurred while reading the QR code: {str(e)}")
         return None 
   
-
-#Verification si un text est un mail 
+#Checking if a text is an email 
 def is_email(text):
-    """Cette fonction permet de verifiér si un test est un email
+    """This function allows you to check if a test is an email
 
     Args:
-        text (String): Le text à vérifier
+        text (String): Text to check
 
     Returns:
-       bool: True si le texte est un email et False dans le cas contraire 
+        Bool: True if text is email and False If not 
     """
     pattern = r'^[\w\.-]+@[\w\.-]+\.\w+$'
     if re.match(pattern, text):

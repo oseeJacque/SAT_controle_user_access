@@ -2,15 +2,14 @@ from sqlalchemy import create_engine,Column,Integer,String
 from sqlalchemy.orm import sessionmaker 
 from sqlalchemy.ext.declarative import declarative_base 
 
-#Creer un moteur de base de données SQLite 
+#Create an SQLite database engine
 engine=create_engine('sqlite:///mydatabase.db',echo=True) 
 
-
-#Crée une classe de base pour les classes ORM  
+#Creates a base class for ORM classes 
 
 Base=declarative_base()
 
-#Définit la classe User  
+#Define User class 
 class User(Base): 
     __tablename__='users'
     id=Column(Integer,primary_key=True)
@@ -22,21 +21,20 @@ class User(Base):
     qr_image=Column(String,unique=True)
     
     def login(self):
-        # Logique de connexion
+        # login logic
         pass
 
     def register(self):
-        # Logique d'inscription
+        # Registration logic
         pass
 
     def forgot_password(self):
-        # Logique de récupération de mot de passe
+        # Registration logic
         pass
 
     def logout(self):
-        # Logique de déconnexion
+        # Logout Logic
         pass
 
-#Créer la base de donnée et les tables 
-
+#Creates database and the tables
 Base.metadata.create_all(engine)

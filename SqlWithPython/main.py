@@ -5,48 +5,47 @@ from utils_fonctions import is_email
 from models import User
 from utils_fonctions import generated_qr_code, get_user, read_qr_code, save_user
 
-# Créez un moteur de base de données SQLite
+# Create an SQLite database engine
 engine = create_engine('sqlite:///mydatabase.db', echo=True)
 
-# Créez une session pour interagir avec la base de données
+# Create a session to interact with the database
 Session = sessionmaker(bind=engine)
 session = Session() 
 
 #Get all user from dataBase 
 users=session.query(User).all()
-"""
-#Variable pour vérifier si le text saisir pour le mail est un mail
+#Variable to check if the text entered for the email is an email
 isMail=True
 
-#Enregistrer les utilisateurs avec le clavier 
-print("ENREGISTREMENT D'UN UTILISATEUR ") 
+#Register users with the keyboard
+print("USER REGISTRATION ") 
 
-#prenoms 
-print("Nom: ")
+#LastName 
+print("Lastname: ")
 nom=input()
 
-#Nom
-print("\nPrénoms: ")
+#Firstname
+print("\nFirstname: ")
 prenom=input()
 
-#email 
+#Email 
 while isMail: 
-    print("\nemail:")
+    print("\nEmail:")
     email=input() 
     if is_email(email):
         isMail=False
     else:
         isMail=True
 
-#Code de sécurité 
-print("\nCode de Sécurité:")
+#Security code 
+print("\nSecurity Code:")
 code_security=input()
 
     
 #Code QR 
 qr_image,code_qr=generated_qr_code(code_security)
 
-# Créez un nouvel utilisateur
+# Create a user
 result=save_user(
     data={
     "lastname":nom, 
@@ -59,13 +58,13 @@ result=save_user(
 )
 
 if result:
-    print("Utilisateur enregistré avec succès!!")
+    print("User registration is success")
 else:
-    print("Enregistrement de l'utilisateur a echoué")
+    print("User registration is fail")
 
 
 """
-#Vérification de l'existance des utilisateur 
+#User vérification on the database
 for user in users:
     get_user('qr',value=read_qr_code(user.qr_image))
-
+"""

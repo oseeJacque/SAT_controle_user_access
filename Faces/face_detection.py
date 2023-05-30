@@ -69,4 +69,4 @@ def convert_image_to_numpy_array(image_path):
     return image_array 
     
     
-print(get_emotion(convert_image_to_numpy_array("./person/personhappy.jpg")))
+#print(get_emotion(convert_image_to_numpy_array("./person/personhappy.jpg")))
